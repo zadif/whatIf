@@ -8,7 +8,7 @@ export function Signup() {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState(name);
 
-  function submit() {
+  async function submit() {
     let popularDomains = [
       "@gmail.com",
       "@yahoo.com",
@@ -48,11 +48,14 @@ export function Signup() {
       return;
     }
 
-    const { response, error } = axios.post("http://localhost:3000/signup", {
-      email: email,
-      password: password,
-      username: username,
-    });
+    const { response, error } = await axios.post(
+      "http://localhost:3000/signup",
+      {
+        email: email,
+        password: password,
+        username: username,
+      }
+    );
     if (error) {
       console.error("Error signing up user: ", error);
       return;
