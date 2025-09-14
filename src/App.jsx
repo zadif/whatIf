@@ -5,19 +5,30 @@ import { Signup } from "./components/Signup";
 import { Login } from "./components/Login";
 import axios from "axios";
 import api from "./components/api.js";
+import { WhatIfs } from "./components/WhatIfs.jsx";
 
 function App() {
-  async function hello() {
-    let response = await api.get("/hello");
+  let [login, setLogin] = useState(0);
+
+  async function hello2() {
+    let response = await api.get("/logout");
     console.log(response);
   }
-  //hello();
   return (
     <>
       <Header />
-      <Login />
+      <button
+        onClick={() => {
+          setLogin(!login);
+        }}
+      >
+        Login
+      </button>
+      <button onClick={hello2}>Logout</button>
 
-      <button onClick={hello}>GO</button>
+      {login && <Login />}
+
+      <WhatIfs />
     </>
   );
 }

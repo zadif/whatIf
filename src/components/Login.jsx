@@ -6,11 +6,26 @@ export function Login() {
   const [password, setPassword] = useState("");
 
   async function submit() {
+    let popularDomains = [
+      "@gmail.com",
+      "@yahoo.com",
+      "@outlook.com",
+      "@hotmail.com",
+      "@icloud.com",
+      "@aol.com",
+      "@protonmail.com",
+      "@zoho.com",
+      "@yandex.com",
+      "@mail.com",
+    ];
     if (!email || !password) {
       alert("Credentials are missing");
       return;
     }
-
+    if (!popularDomains.some((domain) => email.endsWith(domain))) {
+      alert("Email is wrong");
+      return;
+    }
     if (password.length < 7) {
       alert("Invalid password");
       return;

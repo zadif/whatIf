@@ -10,10 +10,13 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-
+    console.log(error.response.data.message);
     // If access token is invalid/expired and we haven't retried yet
-    if (error.response?.status === 403 && !originalRequest._retry) {
-      originalRequest._retry = true;
+    if (
+      (error.response?.status === 403 && !originalRequest._retry) ||
+      error.response.data.message === "Access token is not present"
+    ) {
+      if (originalRequest) originalRequest._retry = true;
       try {
         // Call refresh route
         await api.get("/refresh");
