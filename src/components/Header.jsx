@@ -5,7 +5,7 @@ export function Header() {
     <>
       <header className="ranchers-regular">
         <Link to="/" className="header-class">
-          Digital Diary
+          What If
         </Link>
       </header>
     </>

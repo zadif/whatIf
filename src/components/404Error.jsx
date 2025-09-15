@@ -1,4 +1,3 @@
-function ErrorPage() {
-  return <h1>404 Error</h1>;
+export default function Error() {
+  return <>404 Error</>;
 }
-export default ErrorPage;
