@@ -5,6 +5,7 @@ export function WhatIfs() {
   let [input, setInput] = useState("");
   const [option, setOption] = useState("news");
   const [tone, setTone] = useState("Mythical");
+  let [publi, setPubli] = useState(0);
 
   async function generate() {
     if (!input || !option || !tone) {
@@ -12,10 +13,13 @@ export function WhatIfs() {
       return;
     }
     try {
+      let username = localStorage.getItem("username");
       const response = await api.post("/generate", {
         prompt: `What if ${input}`,
         option: option,
         tone: tone,
+        publi: publi,
+        username: username,
       });
       console.log(response.data.message);
     } catch (err) {
@@ -72,6 +76,29 @@ export function WhatIfs() {
 
         <option value="Humorous">Humorous</option>
       </select>
+      <br />
+      <br />
+      <label>
+        <input
+          type="radio"
+          name="visibility"
+          value={0}
+          checked={publi === 1}
+          onChange={() => setPubli(1)}
+        />
+        Public
+      </label>
+
+      <label>
+        <input
+          type="radio"
+          name="visibility"
+          value={1}
+          checked={publi === 0}
+          onChange={() => setPubli(0)}
+        />
+        Private
+      </label>
       <br />
       <br />
       <button onClick={generate}>Generate the World</button>

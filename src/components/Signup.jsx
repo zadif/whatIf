@@ -60,7 +60,6 @@ export function Signup() {
       console.error("Error signing up user: ", error);
       return;
     }
-    console.log(response);
   }
 
   function reloadUsername() {

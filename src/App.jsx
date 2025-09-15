@@ -1,34 +1,24 @@
-import { useState } from "react";
 import "./App.css";
 import { Header } from "./components/Header";
-import { Signup } from "./components/Signup";
-import { Login } from "./components/Login";
-import axios from "axios";
-import api from "./components/api.js";
+
 import { WhatIfs } from "./components/WhatIfs.jsx";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ErrorPage from "./components/404Error";
+import MainPage from "./components/MainPage";
+import { Feed } from "./components/Feed.jsx";
 
 function App() {
-  let [login, setLogin] = useState(0);
-
-  async function hello2() {
-    let response = await api.get("/logout");
-    console.log(response);
-  }
   return (
     <>
-      <Header />
-      <button
-        onClick={() => {
-          setLogin(!login);
-        }}
-      >
-        Login
-      </button>
-      <button onClick={hello2}>Logout</button>
-
-      {login && <Login />}
-
-      <WhatIfs />
+      <BrowserRouter>
+        <Header />
+        <Routes>
+          <Route path="/" element={<MainPage />} />
+          <Route path="addNew" element={<WhatIfs />} />
+          <Route path="feed" element={<Feed />} />
+          <Route path="*" element={<ErrorPage />} />
+        </Routes>
+      </BrowserRouter>
     </>
   );
 }

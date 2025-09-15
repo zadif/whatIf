@@ -11,6 +11,10 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     console.log(error.response.data.message);
+    if (error.response.data.message == "Refresh token is not present") {
+      alert("Login again");
+      return;
+    }
     // If access token is invalid/expired and we haven't retried yet
     if (
       (error.response?.status === 403 && !originalRequest._retry) ||

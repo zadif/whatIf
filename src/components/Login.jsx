@@ -40,7 +40,8 @@ export function Login() {
         },
         { withCredentials: true }
       );
-
+      localStorage.setItem("username", response.data.username);
+      localStorage.setItem("email", response.data.email);
       //console.log("✅ Response:", response.data);
     } catch (error) {
       if (error.response) {
