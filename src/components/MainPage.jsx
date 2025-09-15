@@ -40,6 +40,10 @@ export function MainPage() {
         {" "}
         <Link to="feed">Feed</Link>{" "}
       </button>
+      <button>
+        {" "}
+        <Link to="profile">Profile</Link>{" "}
+      </button>
     </>
   );
 }

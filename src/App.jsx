@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ErrorPage from "./components/404Error";
 import MainPage from "./components/MainPage";
 import { Feed } from "./components/Feed.jsx";
+import { Profile } from "./components/Profile.jsx";
 
 function App() {
   return (
@@ -16,6 +17,8 @@ function App() {
           <Route path="/" element={<MainPage />} />
           <Route path="addNew" element={<WhatIfs />} />
           <Route path="feed" element={<Feed />} />
+          <Route path="profile" element={<Profile />} />
+
           <Route path="*" element={<ErrorPage />} />
         </Routes>
       </BrowserRouter>
