@@ -52,7 +52,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="profile"
+        path="profile/:name"
         element={
           <PageTransition>
             <Profile />

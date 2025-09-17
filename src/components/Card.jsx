@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 export function Card(props) {
   let { username, prompt, response, tone, type, likeCount, created_at } = props;
@@ -84,9 +85,11 @@ export function Card(props) {
           {username ? username.charAt(0).toUpperCase() : "?"}
         </div>
         <div className="ml-3">
-          <div className="font-semibold text-gray-800 dark:text-white">
-            {username}
-          </div>
+          <Link to={"/profile/" + username}>
+            <div className="font-semibold text-gray-800 dark:text-white">
+              {username}
+            </div>
+          </Link>
           <div className="text-xs text-gray-500 dark:text-gray-400">
             {formatDateToRelative(created_at)}
           </div>

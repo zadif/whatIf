@@ -116,7 +116,6 @@ export function Login({ onSuccess }) {
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);
-              console.log(e.target.value);
             }}
             placeholder="Enter your email"
             className="input"

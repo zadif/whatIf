@@ -8,15 +8,17 @@ export function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("posts"); // "posts" or "stats"
-  const username = localStorage.getItem("username");
-  const email = localStorage.getItem("email");
+  let [email, setEmail] = useState("");
+
+  const { name } = useParams();
 
   async function search() {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get("/self");
-      setProfile(response.data);
+      const response = await api.get(`/self/${name}`);
+      setProfile(response.data.data);
+      setEmail(response.data.email);
       return response;
     } catch (err) {
       console.error("Error in fetching profile from backend: ", err.message);
@@ -37,13 +39,13 @@ export function Profile() {
         <div className="flex flex-col md:flex-row items-center md:items-start">
           {/* Profile Avatar */}
           <div className="w-24 h-24 bg-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-bold mb-4 md:mb-0 md:mr-6">
-            {username ? username.charAt(0).toUpperCase() : "?"}
+            {name ? name.charAt(0).toUpperCase() : "?"}
           </div>
 
           {/* Profile Info */}
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
-              {username || "Anonymous User"}
+              {name || "Anonymous User"}
             </h1>
             {email && (
               <p className="text-gray-600 dark:text-gray-400 mb-4">{email}</p>
@@ -106,7 +108,7 @@ export function Profile() {
           }`}
           onClick={() => setActiveTab("posts")}
         >
-          Your WhatIfs
+          WhatIfs
         </button>
       </div>
 
@@ -145,7 +147,7 @@ export function Profile() {
         <div className="grid grid-cols-1 gap-6 md:max-w-3xl mx-auto">
           {profile.map((post) => (
             <Card
-              username={username || "You"}
+              username={name || "You"}
               prompt={post.prompt}
               response={post.response}
               tone={post.tone}
