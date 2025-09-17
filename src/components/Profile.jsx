@@ -10,8 +10,7 @@ export function Profile() {
   const [activeTab, setActiveTab] = useState("posts"); // "posts" or "stats"
   let [email, setEmail] = useState("");
 
-  const { name } = useParams();
-
+  let { name } = useParams();
   async function search() {
     setLoading(true);
     setError(null);
@@ -19,10 +18,14 @@ export function Profile() {
       const response = await api.get(`/self/${name}`);
       setProfile(response.data.data);
       setEmail(response.data.email);
+
       return response;
     } catch (err) {
       console.error("Error in fetching profile from backend: ", err.message);
-      setError("Failed to load your posts. Please try again later.");
+      setError(
+        err.response.data.message ||
+          "Failed to load your posts. Please try again later."
+      );
     } finally {
       setLoading(false);
     }
@@ -119,7 +122,7 @@ export function Profile() {
         </div>
       ) : error ? (
         <div
-          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative tryAgain"
           role="alert"
         >
           <span className="block sm:inline">{error}</span>
