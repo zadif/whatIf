@@ -1,14 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  --primary-color: #3498db;
+  --accent-color: #2980b9;
+  --background-color: #f8f9fa;
+  --card-color: #ffffff;
+  --text-primary: #333333;
+  --text-secondary: #555555;
+  --text-light: #f8f9fa;
+  --success: #2ecc71;
+  --warning: #f39c12;
+  --danger: #e74c3c;
+
+  /* Glass effect variables */
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-text: #e5e5e5;
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-shadow: rgba(0, 0, 0, 0.15);
+  --glass-public-color: linear-gradient(135deg, #ffd70055, #ffcc00);
+  --glass-public-glow: rgba(255, 215, 0, 0.5);
+  --glass-private-color: linear-gradient(135deg, #d0e7ff55, #a0d8ff);
+  --glass-private-glow: rgba(160, 216, 255, 0.5);
+
+  background-color: var(--background-color);
+  color: var(--text-primary);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #1a1a1a;
+    --card-color: #2d2d2d;
+    --text-primary: #f8f9fa;
+    --text-secondary: #c9c9c9;
+  }
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--background-color);
+}
+
+/* Common components */
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium transition-all duration-200 focus:outline-none;
+  }
+
+  .btn-primary {
+    @apply bg-blue-500 text-white hover:bg-blue-600 focus:ring-2 focus:ring-blue-300;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-2 focus:ring-gray-100;
+  }
+
+  .btn-success {
+    @apply bg-green-500 text-white hover:bg-green-600 focus:ring-2 focus:ring-green-300;
+  }
+
+  .btn-danger {
+    @apply bg-red-500 text-white hover:bg-red-600 focus:ring-2 focus:ring-red-300;
+  }
+
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-all duration-200;
+  }
+
+  .input {
+    @apply w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md 
+    focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:text-white;
+  }
+
+  .container-fluid {
+    @apply px-4 md:px-8 lg:px-16 w-full max-w-7xl mx-auto;
+  }
 }
