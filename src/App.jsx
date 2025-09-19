@@ -16,6 +16,7 @@ import { FadeIn } from "./components/animations.jsx";
 import { View } from "./components/View.jsx";
 import { useState, useEffect } from "react";
 import api from "./components/api.js";
+import { ThemeProvider } from "./components/ThemeContext.jsx";
 
 // This component handles the page transitions
 function PageTransition({ children }) {
@@ -147,66 +148,68 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {emailRedirect === 1 ? (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-md w-full text-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-16 w-16 text-green-500 mx-auto mb-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
-              Email Confirmed!
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Your email has been successfully confirmed. You can now log in to
-              your account.
-            </p>
-            <button
-              className="btn btn-primary px-6 py-2"
-              onClick={() => {
-                setEmailRedirect(0);
-                window.location.href = "/";
-              }}
-            >
-              Continue to Login
-            </button>
-          </div>
-        </div>
-      ) : (
-        <BrowserRouter>
-          <Header />
-          <main className="pt-4 pb-16">
-            <AppRoutes isAuthenticated={isAuthenticated} />
-          </main>
-
-          {/* Footer */}
-          <footer className="py-6 bg-white dark:bg-gray-800 shadow-inner">
-            <div className="container-fluid">
-              <div className="text-center text-gray-600 dark:text-gray-400">
-                <p>
-                  &copy; {new Date().getFullYear()} WhatIf - Explore Alternate
-                  Realities
-                </p>
-                <p className="text-sm mt-1">
-                  Share your imagination with the world
-                </p>
-              </div>
+    <ThemeProvider>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        {emailRedirect === 1 ? (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-md w-full text-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-16 w-16 text-green-500 mx-auto mb-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+                Email Confirmed!
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                Your email has been successfully confirmed. You can now log in
+                to your account.
+              </p>
+              <button
+                className="btn btn-primary px-6 py-2"
+                onClick={() => {
+                  setEmailRedirect(0);
+                  window.location.href = "/";
+                }}
+              >
+                Continue to Login
+              </button>
             </div>
-          </footer>
-        </BrowserRouter>
-      )}
-    </div>
+          </div>
+        ) : (
+          <BrowserRouter>
+            <Header />
+            <main className="pt-4 pb-16">
+              <AppRoutes isAuthenticated={isAuthenticated} />
+            </main>
+
+            {/* Footer */}
+            <footer className="py-6 bg-white dark:bg-gray-800 shadow-inner">
+              <div className="container-fluid">
+                <div className="text-center text-gray-600 dark:text-gray-400">
+                  <p>
+                    &copy; {new Date().getFullYear()} WhatIf - Explore Alternate
+                    Realities
+                  </p>
+                  <p className="text-sm mt-1">
+                    Share your imagination with the world
+                  </p>
+                </div>
+              </div>
+            </footer>
+          </BrowserRouter>
+        )}
+      </div>
+    </ThemeProvider>
   );
 }
 
