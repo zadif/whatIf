@@ -1,12 +1,19 @@
 import "./App.css";
 import { Header } from "./components/Header";
 import { WhatIfs } from "./components/WhatIfs.jsx";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
 import ErrorPage from "./components/404Error";
 import MainPage from "./components/MainPage";
 import { Feed } from "./components/Feed.jsx";
 import { Profile } from "./components/Profile.jsx";
 import { FadeIn } from "./components/animations.jsx";
+import { View } from "./components/View.jsx";
 import { useState, useEffect } from "react";
 import api from "./components/api.js";
 
@@ -16,23 +23,21 @@ function PageTransition({ children }) {
 }
 
 // Routes with transitions
-function AppRoutes() {
+function AppRoutes({ isAuthenticated }) {
   const location = useLocation();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    const username = localStorage.getItem("username");
-    setIsAuthenticated(!!username);
-  }, [location]);
 
   return (
     <Routes>
       <Route
         path="/"
         element={
-          <PageTransition>
-            <MainPage />
-          </PageTransition>
+          isAuthenticated ? (
+            <Navigate to="/feed" replace />
+          ) : (
+            <PageTransition>
+              <MainPage />
+            </PageTransition>
+          )
         }
       />
       <Route
@@ -67,12 +72,41 @@ function AppRoutes() {
           </PageTransition>
         }
       />
+      <Route
+        path="post/:postID"
+        element={
+          <PageTransition>
+            <View />
+          </PageTransition>
+        }
+      />
     </Routes>
   );
 }
 
 function App() {
+  const [authChecking, setAuthChecking] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   let [emailRedirect, setEmailRedirect] = useState(0);
+
+  // Check authentication on initial load
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        // Check if user is authenticated via localStorage
+        const username = localStorage.getItem("username");
+        setIsAuthenticated(!!username);
+      } catch (err) {
+        console.error("Auth check error:", err);
+      } finally {
+        setAuthChecking(false);
+      }
+    };
+
+    checkAuth();
+    checkEmailRedirect();
+  }, []);
+
   async function checkEmailRedirect() {
     //if user has been redirected after confiriming his mail
     // he contains access and refresh token
@@ -103,9 +137,14 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    checkEmailRedirect();
-  }, []);
+  // Show loading spinner while checking auth
+  if (authChecking && emailRedirect === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -148,7 +187,7 @@ function App() {
         <BrowserRouter>
           <Header />
           <main className="pt-4 pb-16">
-            <AppRoutes />
+            <AppRoutes isAuthenticated={isAuthenticated} />
           </main>
 
           {/* Footer */}

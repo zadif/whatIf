@@ -35,7 +35,7 @@ export function Feed() {
         </div>
       ) : error ? (
         <div
-          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+          className=" tryAgain bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
           role="alert"
         >
           <span className="block sm:inline">{error}</span>
@@ -75,6 +75,7 @@ export function Feed() {
                 userID={post.userID}
                 postID={post.id}
                 has_Liked={post.has_liked}
+                view={false}
               />
             );
           })}

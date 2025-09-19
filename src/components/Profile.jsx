@@ -22,10 +22,8 @@ export function Profile() {
       return response;
     } catch (err) {
       console.error("Error in fetching profile from backend: ", err.message);
-      setError(
-        err.response.data.message ||
-          "Failed to load your posts. Please try again later."
-      );
+
+      setError("Failed to load your posts. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -160,6 +158,7 @@ export function Profile() {
               key={post.id}
               has_Liked={post.has_liked}
               postID={post.id}
+              view={false}
             />
           ))}
         </div>

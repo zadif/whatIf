@@ -14,6 +14,7 @@ export function Card(props) {
     userID,
     postID,
     has_Liked,
+    view,
   } = props;
   const [likes, setLikes] = useState(likeCount || 0);
   const [hasLiked, setHasLiked] = useState(has_Liked);
@@ -119,20 +120,38 @@ export function Card(props) {
           </div>
         </div>
       </div>
+      {view ? (
+        <>
+          <div className="mb-4">
+            <h3 className="font-medium text-gray-900 dark:text-white text-lg">
+              {prompt}
+            </h3>
+          </div>
 
-      {/* Prompt Display */}
-      <div className="mb-4">
-        <h3 className="font-medium text-gray-900 dark:text-white text-lg">
-          {prompt}
-        </h3>
-      </div>
+          {/* Response Content */}
+          <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg mb-4">
+            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
+              {response}
+            </p>
+          </div>
+        </>
+      ) : (
+        <Link to={"/post/" + postID}>
+          {/* Prompt Display */}
+          <div className="mb-4">
+            <h3 className="font-medium text-gray-900 dark:text-white text-lg">
+              {prompt}
+            </h3>
+          </div>
 
-      {/* Response Content */}
-      <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg mb-4">
-        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
-          {response}
-        </p>
-      </div>
+          {/* Response Content */}
+          <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg mb-4">
+            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
+              {response}
+            </p>
+          </div>
+        </Link>
+      )}
 
       {/* Tags/Badges */}
       <div className="flex flex-wrap gap-2 mb-4">
