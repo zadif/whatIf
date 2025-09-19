@@ -49,7 +49,7 @@ export function WhatIfs() {
 
       // After a successful creation, wait briefly and redirect to feed/profile
       setTimeout(() => {
-        navigate(publi === 1 ? "/feed" : "/profile");
+        navigate("/post/" + response.data.postId);
       }, 2000);
     } catch (err) {
       console.log(err);
