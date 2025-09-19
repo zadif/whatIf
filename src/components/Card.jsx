@@ -1,10 +1,22 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import api from "./api.js";
 
 export function Card(props) {
-  let { username, prompt, response, tone, type, likeCount, created_at } = props;
+  let {
+    username,
+    prompt,
+    response,
+    tone,
+    type,
+    likeCount,
+    created_at,
+    userID,
+    postID,
+    has_Liked,
+  } = props;
   const [likes, setLikes] = useState(likeCount || 0);
-  const [hasLiked, setHasLiked] = useState(false);
+  const [hasLiked, setHasLiked] = useState(has_Liked);
 
   function formatDateToRelative(dateString) {
     const inputDate = new Date(dateString);
@@ -30,11 +42,23 @@ export function Card(props) {
     return `${diffDays} days ago`;
   }
 
-  const handleLike = () => {
+  const handleLike = async () => {
     if (hasLiked) {
-      setLikes(likes - 1);
+      if (likes - 1 > -1) {
+        setLikes(likes - 1);
+
+        let response = await api.post("/like", {
+          postID: postID,
+          action: "dislike",
+        });
+      }
     } else {
       setLikes(likes + 1);
+
+      let response = await api.post("/like", {
+        postID: postID,
+        action: "like",
+      });
     }
     setHasLiked(!hasLiked);
   };

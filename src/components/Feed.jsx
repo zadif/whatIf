@@ -72,6 +72,9 @@ export function Feed() {
                 likeCount={post.likeCount}
                 created_at={post.created_at}
                 key={post.id}
+                userID={post.userID}
+                postID={post.id}
+                has_Liked={post.has_liked}
               />
             );
           })}

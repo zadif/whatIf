@@ -158,6 +158,8 @@ export function Profile() {
               likeCount={post.likeCount}
               created_at={post.created_at}
               key={post.id}
+              has_Liked={post.has_liked}
+              postID={post.id}
             />
           ))}
         </div>
