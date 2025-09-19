@@ -128,7 +128,7 @@ export function Card(props) {
             </h3>
           </div>
 
-          {/* Response Content */}
+          {/* Response Content - Full Content for View Mode */}
           <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg mb-4">
             <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
               {response}
@@ -147,7 +147,9 @@ export function Card(props) {
           {/* Response Content */}
           <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg mb-4">
             <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
-              {response}
+              {response.length > 200
+                ? response.slice(0, 200) + "..."
+                : response}
             </p>
           </div>
         </Link>
