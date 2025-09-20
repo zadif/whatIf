@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import api from "./api.js";
+import { useModal } from "./ModalContext.jsx";
 
 export function Card(props) {
   let {
@@ -16,43 +17,109 @@ export function Card(props) {
     has_Liked,
     view,
     publi,
+    onDelete,
   } = props;
   const [likes, setLikes] = useState(likeCount || 0);
   const [hasLiked, setHasLiked] = useState(has_Liked);
   let [publ, setPubl] = useState(publi);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef(null);
+  const { openConfirmModal, openSuccessModal, openErrorModal } = useModal();
+
+  // Click outside handler to close the menu
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    }
+
+    // Add event listener when menu is open
+    if (showMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    // Clean up the event listener
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showMenu]);
 
   async function deletePost() {
-    //a pop up box which shows are you sure you want to delete  this whatIf this cant be undone?
-    try {
-      let response = await api.delete("/whatIf", {
-        data: { postId: postID },
-      });
-      if (response.data.message == "deleted") {
-        //a pop up which shows deleted succesfully
-      } else {
-        //popup which shows error in deletion
-      }
-    } catch (err) {
-      console.error("Error while deleting");
-    }
+    openConfirmModal(
+      "Delete Post",
+      "Are you sure you want to delete this WhatIf? This action cannot be undone.",
+      async () => {
+        try {
+          let response = await api.delete("/whatIf", {
+            data: { postId: postID },
+          });
+          if (response.data.message == "deleted") {
+            openSuccessModal(
+              "Deleted Successfully",
+              "Your WhatIf has been permanently deleted."
+            );
+
+            // If we have an onDelete handler, call it to refresh the parent component
+            if (onDelete) {
+              setTimeout(() => {
+                onDelete(postID);
+              }, 1500);
+            }
+          } else {
+            openErrorModal(
+              "Error Deleting Post",
+              "Something went wrong while deleting your post. Please try again."
+            );
+          }
+        } catch (err) {
+          console.error("Error while deleting", err);
+          openErrorModal(
+            "Error Deleting Post",
+            "Something went wrong while deleting your post. Please try again."
+          );
+        }
+      },
+      "Delete",
+      "Cancel"
+    );
   }
   async function changeVisibility() {
-    //a pop up box which shows are you sure you want to change visiblity of this whatIf?
-    try {
-      let response = await api.post("/update", {
-        postId: postID,
-        publi: !publi,
-      });
-      if (response.data.message == "updated") {
-        // popup which shows successfully updated the visibility of post
-        setPubl(!publi);
-      } else {
-        //popup which shows error in updation
-        console.log("error");
-      }
-    } catch (err) {
-      console.error("Error while deleting");
-    }
+    const newVisibility = !publ;
+    const statusText = newVisibility ? "public" : "private";
+
+    openConfirmModal(
+      "Change Visibility",
+      `Are you sure you want to make this WhatIf ${statusText}?`,
+      async () => {
+        try {
+          let response = await api.post("/update", {
+            postId: postID,
+            publi: newVisibility,
+          });
+          if (response.data.message == "updated") {
+            setPubl(newVisibility);
+            openSuccessModal(
+              "Visibility Changed",
+              `Your WhatIf is now ${statusText}.`
+            );
+          } else {
+            openErrorModal(
+              "Error Changing Visibility",
+              "Something went wrong while updating visibility. Please try again."
+            );
+          }
+        } catch (err) {
+          console.error("Error while updating visibility", err);
+          openErrorModal(
+            "Error Changing Visibility",
+            "Something went wrong while updating visibility. Please try again."
+          );
+        }
+      },
+      "Change",
+      "Cancel"
+    );
   }
 
   function formatDateToRelative(dateString) {
@@ -141,31 +208,74 @@ export function Card(props) {
   return (
     <div className="card mb-6 hover:shadow-lg transition-all duration-200">
       {/* Card Header with User Info */}
-      <div className="flex items-center mb-4">
-        <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-          {username ? username.charAt(0).toUpperCase() : "?"}
-        </div>
-        <div className="ml-3">
-          <Link to={"/profile/" + username}>
-            <div className="font-semibold text-gray-800 dark:text-white">
-              {username}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+            {username ? username.charAt(0).toUpperCase() : "?"}
+          </div>
+          <div className="ml-3">
+            <Link to={"/profile/" + username}>
+              <div className="font-semibold text-gray-800 dark:text-white">
+                {username}
+              </div>
+            </Link>
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              {formatDateToRelative(created_at)}
             </div>
-          </Link>
-          <div className="text-xs text-gray-500 dark:text-gray-400">
-            {formatDateToRelative(created_at)}
           </div>
         </div>
+        {
+          //Only show these buttons when public exists , and it only exists
+          // when whatifs are fetched via profile - NOW MOVED TO THREE-DOT MENU
+        }
+        {publi !== undefined && (
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 text-gray-500 dark:text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                />
+              </svg>
+            </button>
+
+            {/* Dropdown menu */}
+            {showMenu && (
+              <div className="absolute right-0 top-8 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-10 py-1 border border-gray-200 dark:border-gray-700">
+                <button
+                  onClick={() => {
+                    setShowMenu(false);
+                    changeVisibility();
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  {publ ? "Make Private" : "Make Public"}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowMenu(false);
+                    deletePost();
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
-      {
-        //Only show these buttons when public exists , and it only exists
-        // when whatifs are fetched via profile
-      }
-      {publi !== "undefined" && (
-        <>
-          <button onClick={changeVisibility}>Change visibility </button>
-          <button onClick={deletePost}>Delete Post </button>
-        </>
-      )}
 
       {
         //If the whatifs are visible from feed or profile

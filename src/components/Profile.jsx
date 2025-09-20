@@ -29,6 +29,11 @@ export function Profile() {
     }
   }
 
+  // Handle post deletion
+  const handleDeletePost = (postId) => {
+    setProfile((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+  };
+
   useEffect(() => {
     search();
   }, []);
@@ -160,6 +165,7 @@ export function Profile() {
               postID={post.id}
               view={false}
               publi={post.public}
+              onDelete={handleDeletePost}
             />
           ))}
         </div>
