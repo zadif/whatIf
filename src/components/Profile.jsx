@@ -159,6 +159,7 @@ export function Profile() {
               has_Liked={post.has_liked}
               postID={post.id}
               view={false}
+              publi={post.public}
             />
           ))}
         </div>

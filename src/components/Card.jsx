@@ -15,9 +15,45 @@ export function Card(props) {
     postID,
     has_Liked,
     view,
+    publi,
   } = props;
   const [likes, setLikes] = useState(likeCount || 0);
   const [hasLiked, setHasLiked] = useState(has_Liked);
+  let [publ, setPubl] = useState(publi);
+
+  async function deletePost() {
+    //a pop up box which shows are you sure you want to delete  this whatIf this cant be undone?
+    try {
+      let response = await api.delete("/whatIf", {
+        data: { postId: postID },
+      });
+      if (response.data.message == "deleted") {
+        //a pop up which shows deleted succesfully
+      } else {
+        //popup which shows error in deletion
+      }
+    } catch (err) {
+      console.error("Error while deleting");
+    }
+  }
+  async function changeVisibility() {
+    //a pop up box which shows are you sure you want to change visiblity of this whatIf?
+    try {
+      let response = await api.post("/update", {
+        postId: postID,
+        publi: !publi,
+      });
+      if (response.data.message == "updated") {
+        // popup which shows successfully updated the visibility of post
+        setPubl(!publi);
+      } else {
+        //popup which shows error in updation
+        console.log("error");
+      }
+    } catch (err) {
+      console.error("Error while deleting");
+    }
+  }
 
   function formatDateToRelative(dateString) {
     const inputDate = new Date(dateString);
@@ -120,6 +156,22 @@ export function Card(props) {
           </div>
         </div>
       </div>
+      {
+        //Only show these buttons when public exists , and it only exists
+        // when whatifs are fetched via profile
+      }
+      {publi !== "undefined" && (
+        <>
+          <button onClick={changeVisibility}>Change visibility </button>
+          <button onClick={deletePost}>Delete Post </button>
+        </>
+      )}
+
+      {
+        //If the whatifs are visible from feed or profile
+        //I show Link , so that it redirects the whole whatIf
+        // to a single post page i.e. View
+      }
       {view ? (
         <>
           <div className="mb-4">
@@ -154,7 +206,6 @@ export function Card(props) {
           </div>
         </Link>
       )}
-
       {/* Tags/Badges */}
       <div className="flex flex-wrap gap-2 mb-4">
         {tone && (
@@ -174,7 +225,6 @@ export function Card(props) {
           </span>
         )}
       </div>
-
       {/* Interaction Bar */}
       <div className="border-t border-gray-100 dark:border-gray-700 pt-3 flex justify-between items-center">
         <button
