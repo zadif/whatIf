@@ -23,6 +23,14 @@ export function WhatIfs() {
       return;
     }
 
+    // Prevent using the image option as it's coming soon
+    if (option === "image") {
+      setError(
+        "The Image Description feature is coming soon! Please select another format."
+      );
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -171,7 +179,9 @@ export function WhatIfs() {
               <option value="article">Mini Article</option>
               <option value="dialogue">Dialogue</option>
               <option value="timeline">Alternate Timeline</option>
-              <option value="image">Image Description</option>
+              <option value="image" disabled className="text-gray-400">
+                Image Description ✨ Coming Soon ✨
+              </option>
             </select>
             <p className="text-xs text-gray-500 mt-1">
               {getOptionDescription(option)}

@@ -7,6 +7,7 @@ import {
   Route,
   useLocation,
   Navigate,
+  useNavigate,
 } from "react-router-dom";
 import ErrorPage from "./components/404Error";
 import MainPage from "./components/MainPage";
@@ -15,13 +16,74 @@ import { Profile } from "./components/Profile.jsx";
 import { FadeIn } from "./components/animations.jsx";
 import { View } from "./components/View.jsx";
 import { useState, useEffect } from "react";
-import api from "./components/api.js";
+import api, { setSessionExpirationHandler } from "./components/api.js";
 import { ThemeProvider } from "./components/ThemeContext.jsx";
 import { ModalProvider } from "./components/ModalContext.jsx";
+import { useModal } from "./components/ModalContext.jsx";
 
 // This component handles the page transitions
 function PageTransition({ children }) {
   return <FadeIn duration={300}>{children}</FadeIn>;
+}
+
+// Session handler component that has access to modal context and navigation
+function SessionHandler({ children }) {
+  const { openToastModal } = useModal();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Only set the handler if we're not already on the home page
+    // This prevents redirect loops
+    if (location.pathname !== "/") {
+      // Set up the session expiration handler
+      setSessionExpirationHandler(() => {
+        // Handle the session expiration once
+        console.log("Session expired, redirecting to login");
+
+        // Clear user data
+        localStorage.removeItem("username");
+        localStorage.removeItem("email");
+
+        // Show toast message
+        openToastModal(
+          "Session Expired",
+          "Please log in again to continue",
+          3000
+        );
+
+        // Call logout endpoint using direct fetch to avoid interceptor issues
+        fetch("http://localhost:3000/logout", {
+          method: "POST",
+          credentials: "include", // Important for sending cookies
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => {
+            console.log("Logout successful:", response.status);
+          })
+          .catch((error) => {
+            console.error("Logout error:", error);
+          });
+
+        // Redirect to home page after a short delay
+        setTimeout(() => {
+          // Use window.location to force a full page reload
+          // This clears any pending requests and state
+          window.location.href = "/";
+        }, 3000);
+      });
+    }
+
+    // Cleanup function to prevent memory leaks
+    return () => {
+      // Reset the handler when component unmounts
+      setSessionExpirationHandler(null);
+    };
+  }, [openToastModal, navigate, location.pathname]);
+
+  return children;
 }
 
 // Routes with transitions
@@ -29,60 +91,62 @@ function AppRoutes({ isAuthenticated }) {
   const location = useLocation();
 
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          isAuthenticated ? (
-            <Navigate to="/feed" replace />
-          ) : (
+    <SessionHandler>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/feed" replace />
+            ) : (
+              <PageTransition>
+                <MainPage />
+              </PageTransition>
+            )
+          }
+        />
+        <Route
+          path="addNew"
+          element={
             <PageTransition>
-              <MainPage />
+              <WhatIfs />
             </PageTransition>
-          )
-        }
-      />
-      <Route
-        path="addNew"
-        element={
-          <PageTransition>
-            <WhatIfs />
-          </PageTransition>
-        }
-      />
-      <Route
-        path="feed"
-        element={
-          <PageTransition>
-            <Feed />
-          </PageTransition>
-        }
-      />
-      <Route
-        path="profile/:name"
-        element={
-          <PageTransition>
-            <Profile />
-          </PageTransition>
-        }
-      />
-      <Route
-        path="*"
-        element={
-          <PageTransition>
-            <ErrorPage />
-          </PageTransition>
-        }
-      />
-      <Route
-        path="post/:postID"
-        element={
-          <PageTransition>
-            <View />
-          </PageTransition>
-        }
-      />
-    </Routes>
+          }
+        />
+        <Route
+          path="feed"
+          element={
+            <PageTransition>
+              <Feed />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="profile/:name"
+          element={
+            <PageTransition>
+              <Profile />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <PageTransition>
+              <ErrorPage />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="post/:postID"
+          element={
+            <PageTransition>
+              <View />
+            </PageTransition>
+          }
+        />
+      </Routes>
+    </SessionHandler>
   );
 }
 

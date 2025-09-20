@@ -3,6 +3,69 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import api from "./api.js";
 import { useModal } from "./ModalContext.jsx";
 
+// ShareButton component
+function ShareButton({ postID }) {
+  const { openToastModal, openErrorModal } = useModal();
+  const [isSharing, setIsSharing] = useState(false);
+
+  const handleCopy = () => {
+    if (isSharing) return; // Prevent multiple rapid clicks
+
+    setIsSharing(true);
+    const link = `${window.location.origin}/post/${postID}`;
+
+    navigator.clipboard
+      .writeText(link)
+      .then(() => {
+        // Show auto-dismissing toast modal
+        openToastModal(
+          "Link Copied!",
+          "The link has been copied to your clipboard."
+        );
+
+        // Reset sharing state after a short delay
+        setTimeout(() => {
+          setIsSharing(false);
+        }, 1500);
+      })
+      .catch((err) => {
+        console.error("Failed to copy", err);
+        openErrorModal(
+          "Failed to Copy",
+          "There was an error copying the link. Please try again."
+        );
+        setIsSharing(false);
+      });
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      className={`flex items-center space-x-1 text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors ${
+        isSharing ? "opacity-50 cursor-not-allowed" : ""
+      }`}
+      title="Share this WhatIf"
+      disabled={isSharing}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={1.5}
+          d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+        />
+      </svg>
+      <span>{isSharing ? "Sharing..." : "Share"}</span>
+    </button>
+  );
+}
+
 export function Card(props) {
   let {
     username,
@@ -362,9 +425,7 @@ export function Card(props) {
           <span>{likes} likes</span>
         </button>
 
-        <div className="text-sm text-gray-500 dark:text-gray-400">
-          {/* You can add share/comment buttons here */}
-        </div>
+        <ShareButton postID={postID} />
       </div>
     </div>
   );

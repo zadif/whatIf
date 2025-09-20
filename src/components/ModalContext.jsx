@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 const ModalContext = createContext();
 
@@ -10,8 +10,37 @@ export function ModalProvider({ children }) {
     confirmText: "Confirm",
     cancelText: "Cancel",
     confirmAction: () => {},
-    type: "confirm", // 'confirm', 'success', 'error'
+    type: "confirm", // 'confirm', 'success', 'error', 'toast'
+    autoClose: false,
+    autoCloseTime: 0,
+    progress: 0,
   });
+
+  // Effect for auto-closing toast modals
+  useEffect(() => {
+    let timer;
+    let progressTimer;
+
+    if (modal.isOpen && modal.autoClose) {
+      // Progress timer updates the progress bar
+      progressTimer = setInterval(() => {
+        setModal((prev) => ({
+          ...prev,
+          progress: prev.progress + 100 / (modal.autoCloseTime / 100),
+        }));
+      }, 100);
+
+      // Main timer to close the modal
+      timer = setTimeout(() => {
+        closeModal();
+      }, modal.autoCloseTime);
+    }
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(progressTimer);
+    };
+  }, [modal.isOpen, modal.autoClose]);
 
   const openConfirmModal = (
     title,
@@ -28,6 +57,8 @@ export function ModalProvider({ children }) {
       cancelText,
       confirmAction,
       type: "confirm",
+      autoClose: false,
+      progress: 0,
     });
   };
 
@@ -38,6 +69,8 @@ export function ModalProvider({ children }) {
       message,
       confirmText: "OK",
       type: "success",
+      autoClose: false,
+      progress: 0,
     });
   };
 
@@ -48,11 +81,25 @@ export function ModalProvider({ children }) {
       message,
       confirmText: "OK",
       type: "error",
+      autoClose: false,
+      progress: 0,
+    });
+  };
+
+  const openToastModal = (title, message, duration = 1500) => {
+    setModal({
+      isOpen: true,
+      title,
+      message,
+      type: "toast",
+      autoClose: true,
+      autoCloseTime: duration,
+      progress: 0,
     });
   };
 
   const closeModal = () => {
-    setModal((prev) => ({ ...prev, isOpen: false }));
+    setModal((prev) => ({ ...prev, isOpen: false, progress: 0 }));
   };
 
   const handleConfirm = () => {
@@ -66,6 +113,7 @@ export function ModalProvider({ children }) {
         openConfirmModal,
         openSuccessModal,
         openErrorModal,
+        openToastModal,
         closeModal,
       }}
     >
@@ -133,6 +181,24 @@ export function ModalProvider({ children }) {
                   </svg>
                 </div>
               )}
+              {modal.type === "toast" && (
+                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/30 mb-4">
+                  <svg
+                    className="h-6 w-6 text-green-600 dark:text-green-300"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+              )}
 
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 {modal.title}
@@ -141,32 +207,45 @@ export function ModalProvider({ children }) {
                 {modal.message}
               </p>
 
-              <div className="flex justify-center space-x-4">
-                {modal.type === "confirm" && (
+              {/* Only show buttons for non-toast modals */}
+              {modal.type !== "toast" && (
+                <div className="flex justify-center space-x-4">
+                  {modal.type === "confirm" && (
+                    <button
+                      type="button"
+                      className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"
+                      onClick={closeModal}
+                    >
+                      {modal.cancelText}
+                    </button>
+                  )}
                   <button
                     type="button"
-                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"
-                    onClick={closeModal}
+                    className={`px-4 py-2 rounded-md ${
+                      modal.type === "error"
+                        ? "bg-red-600 hover:bg-red-700 text-white"
+                        : modal.type === "success"
+                        ? "bg-green-600 hover:bg-green-700 text-white"
+                        : "bg-blue-600 hover:bg-blue-700 text-white"
+                    }`}
+                    onClick={
+                      modal.type === "confirm" ? handleConfirm : closeModal
+                    }
                   >
-                    {modal.cancelText}
+                    {modal.confirmText}
                   </button>
-                )}
-                <button
-                  type="button"
-                  className={`px-4 py-2 rounded-md ${
-                    modal.type === "error"
-                      ? "bg-red-600 hover:bg-red-700 text-white"
-                      : modal.type === "success"
-                      ? "bg-green-600 hover:bg-green-700 text-white"
-                      : "bg-blue-600 hover:bg-blue-700 text-white"
-                  }`}
-                  onClick={
-                    modal.type === "confirm" ? handleConfirm : closeModal
-                  }
-                >
-                  {modal.confirmText}
-                </button>
-              </div>
+                </div>
+              )}
+
+              {/* Progress bar for toast modals */}
+              {modal.type === "toast" && (
+                <div className="w-full bg-gray-200 dark:bg-gray-700 h-1 mt-4 overflow-hidden rounded-full">
+                  <div
+                    className="bg-green-500 h-full transition-all duration-100 ease-linear rounded-full"
+                    style={{ width: `${modal.progress}%` }}
+                  ></div>
+                </div>
+              )}
             </div>
           </div>
         </div>
