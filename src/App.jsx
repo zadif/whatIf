@@ -53,7 +53,7 @@ function SessionHandler({ children }) {
         );
 
         // Call logout endpoint using direct fetch to avoid interceptor issues
-        fetch("http://localhost:3000/logout", {
+        fetch(`${import.meta.env.VITE_Backend_URL}/logout`, {
           method: "POST",
           credentials: "include", // Important for sending cookies
           headers: {

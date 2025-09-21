@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from "react";
 import axios from "axios";
 import { generateUsername } from "unique-username-generator";
 import { useNavigate } from "react-router-dom";
+import api from "./api";
 
 export function Signup({ onSuccess }) {
   // Generate username only once when component mounts
@@ -68,7 +69,7 @@ export function Signup({ onSuccess }) {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:3000/signup", {
+      const response = await api.post("/signup", {
         email: email,
         password: password,
         username: username,

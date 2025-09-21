@@ -10,8 +10,10 @@ export const setSessionExpirationHandler = (handler) => {
   sessionExpirationHandler = handler;
 };
 
+let url = import.meta.env.VITE_Backend_URL || "http://localhost:3000";
+
 const api = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: url,
   withCredentials: true,
 });
 
