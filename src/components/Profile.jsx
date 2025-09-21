@@ -9,19 +9,40 @@ export function Profile() {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("posts"); // "posts" or "stats"
   let [email, setEmail] = useState("");
+  let [namee, setNamee] = useState("");
 
-  let { name } = useParams();
+  const { name } = useParams();
   async function search() {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get(`/self/${name}`);
+      const response = await api.get(`/self/${name || namee}`);
+
       setProfile(response.data.data);
       setEmail(response.data.email);
 
       return response;
     } catch (err) {
       console.error("Error in fetching profile from backend: ", err.message);
+      if (
+        err?.response?.data?.message == "username is missing" ||
+        err?.response?.data?.message == "The result contains 0 rows"
+      ) {
+        let entries = await api.get("/refresh");
+        console.log(entries?.data);
+        if (entries?.data?.username && entries?.data?.email) {
+          console.log("inside");
+          localStorage.setItem("username", entries.data.username);
+          localStorage.setItem("email", entries.data.email);
+
+          const response = await api.get(`/self/${entries.data.username}`);
+
+          setProfile(response.data.data);
+          setEmail(response.data.email);
+          setNamee(entries.data.username);
+          return response;
+        }
+      }
 
       setError("Failed to load your posts. Please try again later.");
     } finally {
@@ -35,8 +56,11 @@ export function Profile() {
   };
 
   useEffect(() => {
+    if (name) {
+      setNamee(name);
+    }
     search();
-  }, []);
+  }, [name]);
 
   return (
     <div className="container-fluid py-8">
@@ -45,13 +69,13 @@ export function Profile() {
         <div className="flex flex-col md:flex-row items-center md:items-start">
           {/* Profile Avatar */}
           <div className="w-24 h-24 bg-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-bold mb-4 md:mb-0 md:mr-6">
-            {name ? name.charAt(0).toUpperCase() : "?"}
+            {namee ? namee.charAt(0).toUpperCase() : "?"}
           </div>
 
           {/* Profile Info */}
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
-              {name || "Anonymous User"}
+              {namee || "Anonymous User"}
             </h1>
             {email && (
               <p className="text-gray-600 dark:text-gray-400 mb-4">{email}</p>
