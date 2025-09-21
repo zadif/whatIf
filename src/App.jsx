@@ -13,7 +13,7 @@ import ErrorPage from "./components/404Error";
 import MainPage from "./components/MainPage";
 import { Feed } from "./components/Feed.jsx";
 import { Profile } from "./components/Profile.jsx";
-import { FadeIn } from "./components/animations.jsx";
+import { FadeIn } from "./components/Animations.jsx";
 import { View } from "./components/View.jsx";
 import { useState, useEffect } from "react";
 import api, { setSessionExpirationHandler } from "./components/api.js";
