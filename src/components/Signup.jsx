@@ -31,6 +31,7 @@ export function Signup({ onSuccess }) {
       "@zoho.com",
       "@yandex.com",
       "@mail.com",
+      "@camjoint.com",
     ];
 
     if (!email || !password || !username) {
