@@ -354,37 +354,43 @@ export function Card(props) {
       {view ? (
         <>
           <div className="mb-4">
-            <h3 className="font-medium text-gray-900 dark:text-white text-lg">
+            <h2 className="roboto-font font-medium text-gray-900 dark:text-white text-lg">
               {prompt}
-            </h3>
+            </h2>
           </div>
 
           {/* Response Content - Full Content for View Mode */}
-          <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg mb-4">
-            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
-              {response}
-            </p>
+          <div className="nunito-font bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg mb-4">
+            <div
+              className="text-gray-700 dark:text-gray-300 whitespace-pre-line"
+              dangerouslySetInnerHTML={{ __html: response }}
+            />
           </div>
         </>
       ) : (
         <Link to={"/post/" + postID}>
           {/* Prompt Display */}
           <div className="mb-4">
-            <h3 className="font-medium text-gray-900 dark:text-white text-lg">
+            <h2 className="roboto-font font-medium text-gray-900 dark:text-white text-lg">
               {prompt}
-            </h3>
+            </h2>
           </div>
 
           {/* Response Content */}
           <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg mb-4">
-            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
-              {response.length > 200
-                ? response.slice(0, 200) + "..."
-                : response}
-            </p>
+            <div
+              className="nunito-font text-gray-700 dark:text-gray-300 whitespace-pre-line"
+              dangerouslySetInnerHTML={{
+                __html:
+                  response.length > 200
+                    ? response.slice(0, 200) + "..."
+                    : response,
+              }}
+            />
           </div>
         </Link>
       )}
+
       {/* Tags/Badges */}
       <div className="flex flex-wrap gap-2 mb-4">
         {tone && (

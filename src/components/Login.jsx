@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import api from "./api";
 
-export function Login({ onSuccess }) {
+export function Login({ onSuccess, onSwitchToSignup }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -228,6 +228,19 @@ export function Login({ onSuccess }) {
           "Log In"
         )}
       </button>
+
+      <div className="text-center mt-4">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Don't have an account?{" "}
+          <button
+            type="button"
+            onClick={onSwitchToSignup}
+            className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium underline focus:outline-none"
+          >
+            Signup
+          </button>
+        </p>
+      </div>
     </div>
   );
 }

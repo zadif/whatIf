@@ -13,8 +13,10 @@
     "@siantech/username-generator": "^1.0.0",
     "@supabase/supabase-js": "^2.57.4",
     "axios": "^1.11.0",
+    "dompurify": "^3.2.7",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.9.1",
     "sillyname": "^0.1.0",
     "unique-username-generator": "^1.5.1"

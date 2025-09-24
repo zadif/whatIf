@@ -249,7 +249,10 @@ export function MainPage() {
         onClose={closeModal}
         title="Log In"
       >
-        <Login onSuccess={handleLoginSuccess} />
+        <Login
+          onSuccess={handleLoginSuccess}
+          onSwitchToSignup={() => setActiveModal("signup")}
+        />
       </Modal>
 
       {/* Signup Modal */}
