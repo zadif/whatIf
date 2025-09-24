@@ -212,6 +212,7 @@ export function WhatIfs() {
               <option value="Scientific">Scientific</option>
               <option value="Absurd">Absurd</option>
               <option value="Humorous">Humorous</option>
+              <option value="Historical">Historical</option>
             </select>
             <p className="text-xs text-gray-500 mt-1">
               {getToneDescription(tone)}
