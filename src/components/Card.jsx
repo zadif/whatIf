@@ -88,7 +88,7 @@ export function Card(props) {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
   const { openConfirmModal, openSuccessModal, openErrorModal } = useModal();
-
+  const [isDisabled, setIsDisabled] = useState(false);
   // Click outside handler to close the menu
   useEffect(() => {
     function handleClickOutside(event) {
@@ -214,7 +214,7 @@ export function Card(props) {
       if (likes - 1 > -1) {
         setLikes(likes - 1);
 
-        let response = await api.post("/like", {
+        let response = api.post("/like", {
           postID: postID,
           action: "dislike",
         });
@@ -222,10 +222,16 @@ export function Card(props) {
     } else {
       setLikes(likes + 1);
 
-      let response = await api.post("/like", {
+      let response = api.post("/like", {
         postID: postID,
         action: "like",
       });
+    }
+    if (!isDisabled) {
+      setIsDisabled(true);
+      setTimeout(() => {
+        setIsDisabled(false);
+      }, 3000);
     }
     setHasLiked(!hasLiked);
   };
@@ -402,6 +408,7 @@ export function Card(props) {
       <div className="border-t border-gray-100 dark:border-gray-700 pt-3 flex justify-between items-center">
         <button
           onClick={handleLike}
+          disabled={isDisabled}
           className={`flex items-center space-x-1 ${
             hasLiked
               ? "text-red-500 dark:text-red-400"
