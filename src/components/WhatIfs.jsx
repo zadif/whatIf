@@ -61,7 +61,11 @@ export function WhatIfs() {
       }, 2000);
     } catch (err) {
       console.log(err);
-      setError("Failed to create your WhatIf. Please try again.");
+      if (err.response.data.message == "Glitch in the matrix") {
+        setError("Glitch in the matrix");
+      } else {
+        setError("Failed to create your WhatIf. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
