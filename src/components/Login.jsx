@@ -9,6 +9,8 @@ export function Login({ onSuccess, onSwitchToSignup }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpSuccess, setOtpSuccess] = useState("");
   const navigate = useNavigate();
 
   async function submit() {
@@ -26,6 +28,7 @@ export function Login({ onSuccess, onSwitchToSignup }) {
       "@zoho.com",
       "@yandex.com",
       "@mail.com",
+      "@bitfami.com",
     ];
 
     if (!email || !password) {
@@ -83,6 +86,23 @@ export function Login({ onSuccess, onSwitchToSignup }) {
     }
   }
 
+  async function resendOTP() {
+    setOtpLoading(true);
+    setOtpSuccess("");
+    try {
+      let response = await api.post("/resendOTP", {
+        email: email,
+      });
+      setOtpSuccess("OTP resent successfully");
+      setTimeout(() => setOtpSuccess(""), 3000); // Clear success message after 3 seconds
+    } catch (err) {
+      console.error(err);
+      setError("Failed to resend OTP. Please try again.");
+    } finally {
+      // Disable button for 2 seconds
+      setTimeout(() => setOtpLoading(false), 1500);
+    }
+  }
   // Handle Enter key press to submit when both fields have values
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && email.trim() && password.trim() && !loading) {
@@ -100,10 +120,30 @@ export function Login({ onSuccess, onSwitchToSignup }) {
 
       {error && (
         <div
-          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+          className="flexer bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
           role="alert"
         >
           <span className="block sm:inline">{error}</span>
+          {error === "Email not confirmed by user yet" && (
+            <div className="mt-3">
+              <button
+                onClick={resendOTP}
+                disabled={otpLoading}
+                className="bg-blue-500 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold py-2 px-4 rounded text-sm"
+              >
+                {otpLoading ? "Resending..." : "Resend OTP"}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {otpSuccess && (
+        <div
+          className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
+          role="alert"
+        >
+          <span className="block sm:inline">{otpSuccess}</span>
         </div>
       )}
 
