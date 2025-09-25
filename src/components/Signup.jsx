@@ -4,7 +4,7 @@ import { generateUsername } from "unique-username-generator";
 import { useNavigate } from "react-router-dom";
 import api from "./api";
 
-export function Signup({ onSuccess }) {
+export function Signup({ onSuccess, onSwitchToLogin }) {
   // Generate username only once when component mounts
   const initialUsername = useMemo(() => generateUsername(), []);
   const [email, setEmail] = useState("");
@@ -283,6 +283,19 @@ export function Signup({ onSuccess }) {
           "Sign Up"
         )}
       </button>
+
+      <div className="text-center mt-4">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Already have an account?{" "}
+          <button
+            type="button"
+            onClick={onSwitchToLogin}
+            className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium underline focus:outline-none"
+          >
+            Login
+          </button>
+        </p>
+      </div>
     </div>
   );
 }
