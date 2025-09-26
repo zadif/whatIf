@@ -261,7 +261,10 @@ export function MainPage() {
         onClose={closeModal}
         title="Create Account"
       >
-        <Signup onSuccess={handleSignupSuccess} />
+        <Signup
+          onSuccess={handleSignupSuccess}
+          onSwitchToLogin={() => setActiveModal("login")}
+        />
       </Modal>
     </div>
   );

@@ -89,6 +89,8 @@ export function Card(props) {
   const menuRef = useRef(null);
   const { openConfirmModal, openSuccessModal, openErrorModal } = useModal();
   const [isDisabled, setIsDisabled] = useState(false);
+  const [showHeartAnimation, setShowHeartAnimation] = useState(false);
+  const [showUnlikeAnimation, setShowUnlikeAnimation] = useState(false);
   // Click outside handler to close the menu
   useEffect(() => {
     function handleClickOutside(event) {
@@ -214,6 +216,10 @@ export function Card(props) {
       if (likes - 1 > -1) {
         setLikes(likes - 1);
 
+        // Trigger broken heart animation when unliking
+        setShowUnlikeAnimation(true);
+        setTimeout(() => setShowUnlikeAnimation(false), 1500);
+
         let response = api.post("/like", {
           postID: postID,
           action: "dislike",
@@ -221,6 +227,10 @@ export function Card(props) {
       }
     } else {
       setLikes(likes + 1);
+
+      // Trigger heart animation when liking
+      setShowHeartAnimation(true);
+      setTimeout(() => setShowHeartAnimation(false), 2000);
 
       let response = api.post("/like", {
         postID: postID,
@@ -231,7 +241,7 @@ export function Card(props) {
       setIsDisabled(true);
       setTimeout(() => {
         setIsDisabled(false);
-      }, 3000);
+      }, 2000);
     }
     setHasLiked(!hasLiked);
   };
@@ -412,34 +422,120 @@ export function Card(props) {
       </div>
       {/* Interaction Bar */}
       <div className="border-t border-gray-100 dark:border-gray-700 pt-3 flex justify-between items-center">
-        <button
-          onClick={handleLike}
-          disabled={isDisabled}
-          className={`flex items-center space-x-1 ${
-            hasLiked
-              ? "text-red-500 dark:text-red-400"
-              : "text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400"
-          } transition-colors`}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill={hasLiked ? "currentColor" : "none"}
-            stroke="currentColor"
-            className="w-5 h-5"
+        <div className="relative">
+          <button
+            onClick={handleLike}
+            disabled={isDisabled}
+            className={`flex items-center space-x-1 ${
+              hasLiked
+                ? "text-red-500 dark:text-red-400"
+                : "text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400"
+            } transition-colors`}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={hasLiked ? 0 : 1.5}
-              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-            />
-          </svg>
-          <span>{likes} likes</span>
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill={hasLiked ? "currentColor" : "none"}
+              stroke="currentColor"
+              className="w-5 h-5"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={hasLiked ? 0 : 1.5}
+                d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+              />
+            </svg>
+            <span>{likes} likes</span>
+          </button>
+
+          {/* Heart Animation */}
+          {showHeartAnimation && (
+            <div className="absolute top-0 left-0 pointer-events-none">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="w-5 h-5 text-red-500 animate-ping"
+                style={{
+                  animation: "heartPop 0.6s ease-out forwards",
+                }}
+              >
+                <path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+              </svg>
+            </div>
+          )}
+
+          {/* Unlike Animation - Broken Heart */}
+          {showUnlikeAnimation && (
+            <div className="absolute top-0 left-0 pointer-events-none">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                className="w-5 h-5 text-gray-500"
+                style={{
+                  animation: "heartBreak 1.5s ease-out forwards",
+                }}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                />
+                {/* Crack lines */}
+                <path
+                  stroke="currentColor"
+                  strokeWidth={1}
+                  d="M12 8l-2 4M12 8l2 4M10 12l4 0"
+                  opacity="0.7"
+                />
+              </svg>
+            </div>
+          )}
+        </div>
 
         <ShareButton postID={postID} />
       </div>
+
+      {/* Add CSS for heart animations */}
+      <style jsx>{`
+        @keyframes heartPop {
+          0% {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.3) translateY(-10px);
+            opacity: 0.8;
+          }
+          100% {
+            transform: scale(0.8) translateY(-20px);
+            opacity: 0;
+          }
+        }
+
+        @keyframes heartBreak {
+          0% {
+            transform: scale(1) rotate(0deg) translateY(0);
+            opacity: 1;
+          }
+          30% {
+            transform: scale(1.1) rotate(-5deg) translateY(-5px);
+            opacity: 0.9;
+          }
+          60% {
+            transform: scale(0.9) rotate(5deg) translateY(-10px);
+            opacity: 0.6;
+          }
+          100% {
+            transform: scale(0.7) rotate(-10deg) translateY(-15px);
+            opacity: 0;
+          }
+        }
+      `}</style>
     </div>
   );
 }

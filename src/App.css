@@ -33,3 +33,10 @@
   flex-direction: column;
   align-items: center;
 }
+/* Hide the default Edge eye icon */
+input::-ms-reveal {
+  display: none;
+}
+input::-ms-clear {
+  display: none; /* also hides the clear (x) button on text inputs */
+}
