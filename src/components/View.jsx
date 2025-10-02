@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import api from "./api";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Card } from "./Card";
-import { useHead } from "@unhead/react";
 
 export function View() {
   let { postID } = useParams();
@@ -49,63 +48,56 @@ export function View() {
     fetchPostData();
   }, [postID]);
 
-  // Set dynamic meta tags when post data is loaded
-  useHead({
-    title: post.prompt ? `${post.prompt} - What If` : "What If",
-    meta: [
-      // Open Graph
-      {
-        property: "og:title",
-        content: post.prompt || "What If - Share Your Imagination",
-      },
-      {
-        property: "og:description",
-        content: post.response
-          ? post.response.replace(/<[^>]*>/g, "").slice(0, 200) + "..."
-          : "Explore endless possibilities and scenarios",
-      },
-      {
-        property: "og:type",
-        content: "article",
-      },
-      {
-        property: "og:url",
-        content: `https://whatif.qzz.io/post/${postID}`,
-      },
-      {
-        property: "og:image",
-        content: "https://whatif.qzz.io/logo.jpg",
-      },
+  // Update meta tags when post data changes
+  useEffect(() => {
+    if (post && post.prompt) {
+      // Update page title
+      document.title = `${post.prompt} - What If`;
 
-      // Twitter Card
-      {
-        name: "twitter:card",
-        content: "summary_large_image",
-      },
-      {
-        name: "twitter:title",
-        content: post.prompt || "What If - Share Your Imagination",
-      },
-      {
-        name: "twitter:description",
-        content: post.response
-          ? post.response.replace(/<[^>]*>/g, "").slice(0, 200) + "..."
-          : "Explore endless possibilities and scenarios",
-      },
-      {
-        name: "twitter:image",
-        content: "https://whatif.qzz.io/logo.jpg",
-      },
+      // Helper function to update or create meta tag
+      const updateMetaTag = (attr, attrValue, content) => {
+        let element = document.querySelector(`meta[${attr}="${attrValue}"]`);
+        if (element) {
+          element.setAttribute("content", content);
+        } else {
+          element = document.createElement("meta");
+          element.setAttribute(attr, attrValue);
+          element.setAttribute("content", content);
+          document.head.appendChild(element);
+        }
+      };
 
-      // Standard meta
-      {
-        name: "description",
-        content: post.response
-          ? post.response.replace(/<[^>]*>/g, "").slice(0, 160) + "..."
-          : "Explore endless possibilities and scenarios",
-      },
-    ],
-  });
+      // Strip HTML tags from response for description
+      const description = post.response
+        ? post.response.replace(/<[^>]*>/g, "").slice(0, 200) + "..."
+        : "Explore endless possibilities and scenarios";
+
+      // Open Graph tags
+      updateMetaTag("property", "og:title", post.prompt);
+      updateMetaTag("property", "og:description", description);
+      updateMetaTag("property", "og:type", "article");
+      updateMetaTag(
+        "property",
+        "og:url",
+        `https://whatif.qzz.io/post/${postID}`
+      );
+      updateMetaTag("property", "og:image", "https://whatif.qzz.io/logo.jpg");
+
+      // Twitter Card tags
+      updateMetaTag("name", "twitter:card", "summary_large_image");
+      updateMetaTag("name", "twitter:title", post.prompt);
+      updateMetaTag("name", "twitter:description", description);
+      updateMetaTag("name", "twitter:image", "https://whatif.qzz.io/logo.jpg");
+
+      // Standard meta description
+      updateMetaTag("name", "description", description);
+    }
+
+    // Cleanup function to reset to default
+    return () => {
+      document.title = "What If";
+    };
+  }, [post, postID]);
 
   const handleRetry = () => {
     fetchPostData();
