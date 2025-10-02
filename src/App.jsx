@@ -46,11 +46,7 @@ function SessionHandler({ children }) {
         localStorage.removeItem("email");
 
         // Show toast message
-        openToastModal(
-          "Session Expired",
-          "Please log in again to continue",
-          3000
-        );
+        openToastModal("Please Login to continue", " ", 3000);
 
         // Call logout endpoint using direct fetch to avoid interceptor issues
         fetch(`${import.meta.env.VITE_Backend_URL}/logout`, {

@@ -25,9 +25,7 @@ export function View() {
         return;
       }
 
-      const response = await api.post("/whatIf", {
-        postId: postID,
-      });
+      const response = await api.get(`/whatIf/${postID}`);
 
       if (!response.data || Object.keys(response.data).length === 0) {
         throw new Error("Post not found or empty response received");
