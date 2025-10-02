@@ -6,42 +6,68 @@ import { Link } from "react-router-dom";
 export function Feed() {
   let [feed, setFeed] = useState([]);
   let [loading, setLoading] = useState(true);
+  let [loadingMore, setLoadingMore] = useState(false);
+  let [loadMore, setLoadMore] = useState(1);
   let [error, setError] = useState(null);
+  let [page, setPage] = useState(0);
 
   async function search() {
-    setLoading(true);
+    // Only show full screen loader on first load
+    if (page === 0) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
     setError(null);
     try {
-      const response = await api.get("/feed");
-
-      let i = 5;
-      let arr = response.data;
-      let size = arr.length;
-
-      //swapping the feed 5 times
-      while (i--) {
-        const i = Math.floor(Math.random() * size);
-        const j = Math.floor(Math.random() * size);
-
-        let temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
+      const response = await api.get(`/feed/${page}`);
+      if (response.data.length > 0) {
+        let i = 5;
+        let arr = response.data;
+        let size = arr.length;
+        //swapping the feed 5 times
+        while (i--) {
+          const i = Math.floor(Math.random() * size);
+          const j = Math.floor(Math.random() * size);
+          let temp = arr[i];
+          arr[i] = arr[j];
+          arr[j] = temp;
+        }
+        setFeed((prev) => [...prev, ...arr]);
       }
 
-      setFeed(arr);
+      // setFeed((prev) => [...prev, ...response.data]);
+      setLoadMore(0);
+
       return response;
     } catch (err) {
       console.error("Error in fetching feed from backend: ", err.message);
       setError("Failed to load posts. Please try again later.");
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   }
 
   useEffect(() => {
     search();
-  }, []);
+  }, [page]);
 
+  function handleScroll() {
+    if (
+      window.innerHeight + document.documentElement.scrollTop + 1 >=
+      document.documentElement.scrollHeight
+    ) {
+      setLoadMore(1);
+      setPage((prev) => prev + 1);
+    }
+  }
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
   return (
     <div className="container-fluid py-8">
       {loading ? (
@@ -75,26 +101,33 @@ export function Feed() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:max-w-3xl mx-auto">
-          {feed.map((post) => {
-            return (
-              <Card
-                username={post.username}
-                prompt={post.prompt}
-                response={post.response}
-                tone={post.tone}
-                type={post.type}
-                likeCount={post.likeCount}
-                created_at={post.created_at}
-                key={post.id}
-                userID={post.userID}
-                postID={post.id}
-                has_Liked={post.has_liked}
-                view={false}
-              />
-            );
-          })}
-        </div>
+        <>
+          <div className="grid grid-cols-1 gap-6 md:max-w-3xl mx-auto">
+            {feed.map((post) => {
+              return (
+                <Card
+                  username={post.username}
+                  prompt={post.prompt}
+                  response={post.response}
+                  tone={post.tone}
+                  type={post.type}
+                  likeCount={post.likeCount}
+                  created_at={post.created_at}
+                  key={post.id}
+                  userID={post.userID}
+                  postID={post.id}
+                  has_Liked={post.has_liked}
+                  view={false}
+                />
+              );
+            })}
+          </div>
+          {loadingMore && (
+            <div className="flex justify-center items-center py-8">
+              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
