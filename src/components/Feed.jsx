@@ -7,7 +7,7 @@ export function Feed() {
   let [feed, setFeed] = useState([]);
   let [loading, setLoading] = useState(true);
   let [loadingMore, setLoadingMore] = useState(false);
-  let [loadMore, setLoadMore] = useState(1);
+  let [noMoreFeed, setNoMoreFeed] = useState(1);
   let [error, setError] = useState(null);
   let [page, setPage] = useState(0);
 
@@ -34,10 +34,11 @@ export function Feed() {
           arr[j] = temp;
         }
         setFeed((prev) => [...prev, ...arr]);
+      } else if (response.data.length == 0) {
+        setNoMoreFeed(0);
       }
 
       // setFeed((prev) => [...prev, ...response.data]);
-      setLoadMore(0);
 
       return response;
     } catch (err) {
@@ -56,9 +57,10 @@ export function Feed() {
   function handleScroll() {
     if (
       window.innerHeight + document.documentElement.scrollTop + 1 >=
-      document.documentElement.scrollHeight
+        document.documentElement.scrollHeight &&
+      noMoreFeed === 1 &&
+      !loadingMore
     ) {
-      setLoadMore(1);
       setPage((prev) => prev + 1);
     }
   }
@@ -122,9 +124,16 @@ export function Feed() {
               );
             })}
           </div>
-          {loadingMore && (
+          {noMoreFeed === 1 && loadingMore && (
             <div className="flex justify-center items-center py-8">
               <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          )}
+          {noMoreFeed === 0 && (
+            <div className="text-center py-8 ender">
+              <p className="text-gray-500 dark:text-gray-400">
+                The feed has ended, but your creativity doesn't have to!
+              </p>
             </div>
           )}
         </>

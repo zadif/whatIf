@@ -40,3 +40,7 @@ input::-ms-reveal {
 input::-ms-clear {
   display: none; /* also hides the clear (x) button on text inputs */
 }
+
+.py-8 {
+  padding-bottom: 0 !important;
+}
