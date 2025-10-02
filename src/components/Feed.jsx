@@ -13,7 +13,22 @@ export function Feed() {
     setError(null);
     try {
       const response = await api.get("/feed");
-      setFeed(response.data);
+
+      let i = 5;
+      let arr = response.data;
+      let size = arr.length;
+
+      //swapping the feed 5 times
+      while (i--) {
+        const i = Math.floor(Math.random() * size);
+        const j = Math.floor(Math.random() * size);
+
+        let temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+      }
+
+      setFeed(arr);
       return response;
     } catch (err) {
       console.error("Error in fetching feed from backend: ", err.message);
