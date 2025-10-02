@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "./api";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Card } from "./Card";
+import { useHead } from "@unhead/react";
 
 export function View() {
   let { postID } = useParams();
@@ -47,6 +48,64 @@ export function View() {
   useEffect(() => {
     fetchPostData();
   }, [postID]);
+
+  // Set dynamic meta tags when post data is loaded
+  useHead({
+    title: post.prompt ? `${post.prompt} - What If` : "What If",
+    meta: [
+      // Open Graph
+      {
+        property: "og:title",
+        content: post.prompt || "What If - Share Your Imagination",
+      },
+      {
+        property: "og:description",
+        content: post.response
+          ? post.response.replace(/<[^>]*>/g, "").slice(0, 200) + "..."
+          : "Explore endless possibilities and scenarios",
+      },
+      {
+        property: "og:type",
+        content: "article",
+      },
+      {
+        property: "og:url",
+        content: `https://whatif.qzz.io/post/${postID}`,
+      },
+      {
+        property: "og:image",
+        content: "https://whatif.qzz.io/logo.jpg",
+      },
+
+      // Twitter Card
+      {
+        name: "twitter:card",
+        content: "summary_large_image",
+      },
+      {
+        name: "twitter:title",
+        content: post.prompt || "What If - Share Your Imagination",
+      },
+      {
+        name: "twitter:description",
+        content: post.response
+          ? post.response.replace(/<[^>]*>/g, "").slice(0, 200) + "..."
+          : "Explore endless possibilities and scenarios",
+      },
+      {
+        name: "twitter:image",
+        content: "https://whatif.qzz.io/logo.jpg",
+      },
+
+      // Standard meta
+      {
+        name: "description",
+        content: post.response
+          ? post.response.replace(/<[^>]*>/g, "").slice(0, 160) + "..."
+          : "Explore endless possibilities and scenarios",
+      },
+    ],
+  });
 
   const handleRetry = () => {
     fetchPostData();

@@ -20,6 +20,7 @@ import api, { setSessionExpirationHandler } from "./components/api.js";
 import { ThemeProvider } from "./components/ThemeContext.jsx";
 import { ModalProvider } from "./components/ModalContext.jsx";
 import { useModal } from "./components/ModalContext.jsx";
+import { createHead, HeadProvider } from "@unhead/react";
 
 // This component handles the page transitions
 function PageTransition({ children }) {
@@ -276,4 +277,16 @@ function App() {
   );
 }
 
-export default App;
+// Create head instance
+const head = createHead();
+
+// Wrap the entire app with HeadProvider
+function AppWithHead() {
+  return (
+    <HeadProvider head={head}>
+      <App />
+    </HeadProvider>
+  );
+}
+
+export default AppWithHead;
