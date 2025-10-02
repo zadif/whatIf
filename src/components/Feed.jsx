@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "./api.js";
 import { Card } from "./Card.jsx";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function Feed() {
   let [feed, setFeed] = useState([]);
@@ -10,6 +10,7 @@ export function Feed() {
   let [noMoreFeed, setNoMoreFeed] = useState(1);
   let [error, setError] = useState(null);
   let [page, setPage] = useState(0);
+  const navigate = useNavigate();
 
   async function search() {
     // Only show full screen loader on first load
@@ -104,6 +105,49 @@ export function Feed() {
         </div>
       ) : (
         <>
+          {/* Create WhatIf Prompt Box */}
+          <div className="md:max-w-3xl mx-auto mb-6">
+            <div
+              className="card hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => navigate("/addNew")}
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                  {localStorage.getItem("username")?.charAt(0).toUpperCase() ||
+                    "?"}
+                </div>
+                <div className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full px-4 py-3 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                  What if... ?
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-around">
+                <button
+                  className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate("/addNew");
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  <span className="font-medium">Create WhatIf</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 gap-6 md:max-w-3xl mx-auto">
             {feed.map((post) => {
               return (
