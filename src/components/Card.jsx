@@ -2,69 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import api from "./api.js";
 import { useModal } from "./ModalContext.jsx";
-
-// ShareButton component
-function ShareButton({ postID }) {
-  const { openToastModal, openErrorModal } = useModal();
-  const [isSharing, setIsSharing] = useState(false);
-
-  const handleCopy = () => {
-    if (isSharing) return; // Prevent multiple rapid clicks
-
-    setIsSharing(true);
-    const link = `${window.location.origin}/post/${postID}`;
-
-    navigator.clipboard
-      .writeText(link)
-      .then(() => {
-        // Show auto-dismissing toast modal
-        openToastModal(
-          "Link Copied!",
-          "The link has been copied to your clipboard."
-        );
-
-        // Reset sharing state after a short delay
-        setTimeout(() => {
-          setIsSharing(false);
-        }, 1500);
-      })
-      .catch((err) => {
-        console.error("Failed to copy", err);
-        openErrorModal(
-          "Failed to Copy",
-          "There was an error copying the link. Please try again."
-        );
-        setIsSharing(false);
-      });
-  };
-
-  return (
-    <button
-      onClick={handleCopy}
-      className={`flex items-center space-x-1 text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors ${
-        isSharing ? "opacity-50 cursor-not-allowed" : ""
-      }`}
-      title="Share this WhatIf"
-      disabled={isSharing}
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-5 w-5"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={1.5}
-          d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-        />
-      </svg>
-      <span>{isSharing ? "Sharing..." : "Share"}</span>
-    </button>
-  );
-}
+import SharePromptButton from "./SharePromptButton.jsx";
 
 export function Card(props) {
   let {
@@ -87,10 +25,24 @@ export function Card(props) {
   let [publ, setPubl] = useState(publi);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
-  const { openConfirmModal, openSuccessModal, openErrorModal } = useModal();
+  const { openConfirmModal, openSuccessModal, openErrorModal, openToastModal } =
+    useModal();
   const [isDisabled, setIsDisabled] = useState(false);
   const [showHeartAnimation, setShowHeartAnimation] = useState(false);
   const [showUnlikeAnimation, setShowUnlikeAnimation] = useState(false);
+
+  // Handler for SharePromptButton result
+  const handleShareResult = (result) => {
+    // Don't show popup here - we'll show it immediately on click instead
+    if (!result.success && result.reason !== "unexpected-error") {
+      // Only show error if it's a real failure (not just fallback)
+      openErrorModal(
+        "Share Failed",
+        "There was an error sharing. Please try again."
+      );
+    }
+  };
+
   // Click outside handler to close the menu
   useEffect(() => {
     function handleClickOutside(event) {
@@ -512,7 +464,32 @@ export function Card(props) {
           )}
         </div>
 
-        <ShareButton postID={postID} />
+        <SharePromptButton
+          prompt={prompt}
+          postUrl={`${window.location.origin}/post/${postID}`}
+          onResult={handleShareResult}
+          className="flex items-center space-x-1 text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+          onClick={() => {
+            // Show toast with only title, no message
+            openToastModal("Copied!", "Link and image have been copied");
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+            />
+          </svg>
+          <span>Share</span>
+        </SharePromptButton>
       </div>
 
       {/* Add CSS for heart animations */}

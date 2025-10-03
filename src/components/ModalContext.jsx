@@ -236,16 +236,6 @@ export function ModalProvider({ children }) {
                   </button>
                 </div>
               )}
-
-              {/* Progress bar for toast modals */}
-              {modal.type === "toast" && (
-                <div className="w-full bg-gray-200 dark:bg-gray-700 h-1 mt-4 overflow-hidden rounded-full">
-                  <div
-                    className="bg-green-500 h-full transition-all duration-100 ease-linear rounded-full"
-                    style={{ width: `${modal.progress}%` }}
-                  ></div>
-                </div>
-              )}
             </div>
           </div>
         </div>
