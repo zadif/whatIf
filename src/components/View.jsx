@@ -212,6 +212,22 @@ export function View() {
         has_Liked={post.has_liked}
         view={true}
       />
+      {!localStorage.getItem("username") && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-lg p-6 mt-6 text-center">
+          <h3 className="text-lg font-medium text-blue-900 dark:text-blue-300 mb-2">
+            Join the Community
+          </h3>
+          <p className="text-blue-700 dark:text-blue-300 mb-4">
+            Login to turn your 'What Ifs' into reality and discover others
+          </p>
+          <button
+            onClick={() => navigate("/")}
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+          >
+            Login
+          </button>
+        </div>
+      )}
     </div>
   );
 }
