@@ -471,7 +471,7 @@ export function Card(props) {
           className="flex items-center space-x-1 text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
           onClick={() => {
             // Show toast with only title, no message
-            openToastModal("Copied!", "Link and image have been copied");
+            openToastModal("Copied!", "Link and image have been copied", false);
           }}
         >
           <svg
