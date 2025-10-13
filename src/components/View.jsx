@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "./api";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Card } from "./Card";
+import { Comment } from "./Comment";
 
 export function View() {
   let { postID } = useParams();
@@ -9,6 +10,8 @@ export function View() {
   const [post, setPost] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  let [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(true);
 
   const isValidNonNegativeInteger = (value) => {
     const num = Number(value);
@@ -43,9 +46,29 @@ export function View() {
       setLoading(false);
     }
   }
+  async function fetchComments() {
+    setCommentsLoading(true);
 
+    try {
+      if (!isValidNonNegativeInteger(postID)) {
+        setError("Invalid PostId");
+        return;
+      }
+
+      const response = await api.get(`/comment/${postID}`);
+      setComments(response.data.comments);
+      //return response;
+    } catch (err) {
+      console.error("Error fetching comments: ", err);
+
+      return null;
+    } finally {
+      setCommentsLoading(false);
+    }
+  }
   useEffect(() => {
     fetchPostData();
+    fetchComments();
   }, [postID]);
 
   // Update meta tags when post data changes
@@ -228,6 +251,8 @@ export function View() {
           </button>
         </div>
       )}
+
+      <Comment postId={post.id} comments={comments} onRefresh={fetchComments} />
     </div>
   );
 }
