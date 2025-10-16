@@ -27,7 +27,6 @@ function CommentItem({ comment, depth = 0, onReplySubmit, postId }) {
         postId,
         parentCommentId: comment.id,
       });
-
       // Create new reply object with response data
       const newReply = {
         id: response.data.id || Date.now(), // Use server ID or timestamp as fallback
@@ -228,17 +227,6 @@ function CommentItem({ comment, depth = 0, onReplySubmit, postId }) {
                   ))}
               </>
             )}
-
-            {/* Collapsed State */}
-            {isCollapsed && (
-              <div className="text-xs text-gray-500 dark:text-gray-400 animate-fadeIn">
-                {localReplies.length > 0
-                  ? `${localReplies.length} ${
-                      localReplies.length === 1 ? "reply" : "replies"
-                    } hidden`
-                  : "Comment hidden"}
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -268,6 +256,7 @@ export function Comment({ postId, comments, onRefresh }) {
   const [comment, setComment] = useState("");
   const [commentError, setCommentError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   async function send() {
     if (comment.trim() === "") {
@@ -286,6 +275,7 @@ export function Comment({ postId, comments, onRefresh }) {
       });
 
       setComment("");
+      setIsExpanded(false);
 
       // Refresh comments after posting
       if (onRefresh) {
@@ -310,53 +300,78 @@ export function Comment({ postId, comments, onRefresh }) {
   };
 
   return (
-    <div className="mt-6">
-      {/* Comment Input Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4 border border-gray-200 dark:border-gray-700">
-        <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-          Comment as{" "}
-          <span className="text-blue-600 dark:text-blue-400 font-semibold">
-            {localStorage.getItem("username") || "Guest"}
-          </span>
-        </div>
-        <textarea
-          placeholder="What are your thoughts?"
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          onKeyPress={handleKeyPress}
-          className={`w-full p-3 border ${
-            commentError
-              ? "border-red-500 dark:border-red-500"
-              : "border-gray-300 dark:border-gray-600"
-          } rounded-md bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-          rows="4"
-          disabled={isSubmitting}
-        />
-        {commentError && (
-          <p className="text-red-500 text-xs mt-1">{commentError}</p>
-        )}
-        <div className="flex justify-end gap-2 mt-2">
-          <button
-            onClick={() => {
-              setComment("");
-              setCommentError("");
-            }}
-            disabled={isSubmitting}
-            className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={send}
-            disabled={!comment.trim() || isSubmitting}
-            className={`px-4 py-2 text-sm font-semibold rounded-full ${
-              comment.trim() && !isSubmitting
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-            }`}
-          >
-            {isSubmitting ? "Posting..." : "Comment"}
-          </button>
+    <div className="mt-8">
+      {/* Reddit-style Comment Input */}
+      <div
+        className={`mb-6 transition-all duration-500 ease-in-out ${
+          isExpanded ? "opacity-100" : "opacity-100"
+        }`}
+      >
+        <div
+          onClick={() => !isExpanded && setIsExpanded(true)}
+          className={`bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded shadow-sm transition-all duration-500 ease-in-out ${
+            isExpanded
+              ? "cursor-default"
+              : "cursor-text hover:border-gray-400 dark:hover:border-gray-500"
+          }`}
+        >
+          {!isExpanded ? (
+            // Collapsed placeholder
+            <div className="p-3">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                What are your thoughts?
+              </p>
+            </div>
+          ) : (
+            // Expanded comment box
+            <>
+              {/* Textarea */}
+              <textarea
+                placeholder="What are your thoughts?"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                onKeyPress={handleKeyPress}
+                autoFocus
+                disabled={isSubmitting}
+                className="w-full px-4 py-3 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-sm border-0 resize-none focus:outline-none focus:ring-0 outline-none transition-all duration-200"
+                rows="3"
+                style={{ minHeight: "80px", outline: "none" }}
+              />
+
+              {/* Error message */}
+              {commentError && (
+                <div className="px-4 py-2 text-red-600 dark:text-red-400 text-xs font-medium border-t border-gray-200 dark:border-gray-700 bg-red-50 dark:bg-red-950/20">
+                  {commentError}
+                </div>
+              )}
+
+              {/* Footer with buttons */}
+              <div className="flex justify-end items-center gap-2 px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
+                <button
+                  onClick={() => {
+                    setComment("");
+                    setCommentError("");
+                    setIsExpanded(false);
+                  }}
+                  disabled={isSubmitting}
+                  className="px-6 py-2 text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all duration-200 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={send}
+                  disabled={!comment.trim() || isSubmitting}
+                  className={`px-7 py-2 text-sm font-bold rounded-full transition-all duration-200 ${
+                    comment.trim() && !isSubmitting
+                      ? "bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-sm hover:shadow-md"
+                      : "bg-gray-300 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                  }`}
+                >
+                  {isSubmitting ? "Posting..." : "Comment"}
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
