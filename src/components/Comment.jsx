@@ -11,6 +11,22 @@ function CommentItem({ comment, depth = 0, onReplySubmit, postId }) {
   const [replyError, setReplyError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Determine how many replies to show based on screen size
+  const isMobile = window.innerWidth < 768;
+  const repliesPerPage = isMobile ? 3 : 5;
+  const maxDepth = isMobile ? 3 : 5; // Maximum nesting depth before "Continue thread" button
+
+  // Initialize visible count only once when component mounts
+  const [visibleRepliesCount, setVisibleRepliesCount] = useState(
+    () => repliesPerPage
+  );
+  const [showDeepReplies, setShowDeepReplies] = useState(false); // For "Continue thread" functionality
+
+  // Update localReplies when comment.replies changes
+  useEffect(() => {
+    setLocalReplies(comment.replies || []);
+  }, [comment.replies]);
+
   const handleReplySubmit = async () => {
     if (replyText.trim() === "") {
       setReplyError("Reply cannot be empty");
@@ -68,9 +84,13 @@ function CommentItem({ comment, depth = 0, onReplySubmit, postId }) {
   };
 
   return (
-    <div className={`comment-thread ${depth > 0 ? "ml-6" : ""} mb-4`}>
+    <div
+      className={`comment-thread ${
+        depth > 0 && depth < maxDepth ? "ml-6" : ""
+      } mb-4`}
+    >
       {/* Vertical line for nested comments */}
-      {depth > 0 && (
+      {depth > 0 && depth < maxDepth && (
         <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-300 dark:bg-gray-700"></div>
       )}
 
@@ -212,19 +232,111 @@ function CommentItem({ comment, depth = 0, onReplySubmit, postId }) {
                 )}
 
                 {/* Nested Replies */}
-                {!isCollapsed &&
-                  localReplies &&
-                  localReplies.length > 0 &&
-                  localReplies.map((reply) => (
-                    <div key={reply.id} className="mt-4">
-                      <CommentItem
-                        comment={reply}
-                        postId={postId}
-                        depth={depth + 1}
-                        onReplySubmit={onReplySubmit}
-                      />
-                    </div>
-                  ))}
+                {!isCollapsed && localReplies && localReplies.length > 0 && (
+                  <>
+                    {/* If we've reached max depth, show "Continue thread" button */}
+                    {depth >= maxDepth && !showDeepReplies ? (
+                      <button
+                        onClick={() => setShowDeepReplies(true)}
+                        className="mt-4 px-4 py-2 text-sm font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-full border border-blue-600 dark:border-blue-400 flex items-center gap-2"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 5l7 7-7 7M5 5l7 7-7 7"
+                          />
+                        </svg>
+                        Continue this thread ({localReplies.length}{" "}
+                        {localReplies.length === 1 ? "reply" : "replies"})
+                      </button>
+                    ) : (
+                      <>
+                        {localReplies
+                          .slice(0, visibleRepliesCount)
+                          .map((reply) => (
+                            <div key={reply.id} className="mt-4">
+                              <CommentItem
+                                comment={reply}
+                                postId={postId}
+                                depth={depth + 1}
+                                onReplySubmit={onReplySubmit}
+                              />
+                            </div>
+                          ))}
+
+                        {/* Load More Replies Button */}
+                        {localReplies.length > visibleRepliesCount && (
+                          <button
+                            onClick={() =>
+                              setVisibleRepliesCount(
+                                (prev) => prev + repliesPerPage
+                              )
+                            }
+                            className="mt-4 ml-10 text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </svg>
+                            Load{" "}
+                            {Math.min(
+                              repliesPerPage,
+                              localReplies.length - visibleRepliesCount
+                            )}{" "}
+                            more{" "}
+                            {localReplies.length - visibleRepliesCount === 1
+                              ? "reply"
+                              : "replies"}
+                          </button>
+                        )}
+
+                        {/* Show Less Button (when expanded) */}
+                        {visibleRepliesCount > repliesPerPage && (
+                          <button
+                            onClick={() =>
+                              setVisibleRepliesCount(repliesPerPage)
+                            }
+                            className="mt-2 ml-10 text-sm font-bold text-gray-600 dark:text-gray-400 hover:underline flex items-center gap-1"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 15l7-7 7 7"
+                              />
+                            </svg>
+                            Show less
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
               </>
             )}
           </div>
